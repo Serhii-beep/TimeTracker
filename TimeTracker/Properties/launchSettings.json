@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "http": {
+    "TimeTracker": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",
@@ -8,17 +8,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:5113"
-    },
-    "https": {
-      "commandName": "Project",
-      "launchBrowser": true,
-      "launchUrl": "swagger",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "dotnetRunMessages": true,
-      "applicationUrl": "https://localhost:7176;http://localhost:5113"
+      "applicationUrl": "https://localhost:7063;http://localhost:5063"
     },
     "IIS Express": {
       "commandName": "IISExpress",

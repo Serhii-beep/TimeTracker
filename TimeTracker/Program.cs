@@ -1,8 +1,11 @@
 
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using TimeTracker.Automapper;
 using TimeTracker.Data;
 using TimeTracker.Data.EFRepositories;
 using TimeTracker.Data.Interfaces;
+using TimeTracker.Services;
 
 namespace TimeTracker
 {
@@ -19,20 +22,23 @@ namespace TimeTracker
 
             builder.Services.AddControllers();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<IMapper, Mapper>(implementationFactory =>
+            {
+                var profile = new AutoMapperProfile();
+                var config = new MapperConfiguration(cfg => cfg.AddProfile(profile));
+                return new(config);
+            });
+            builder.Services.AddScoped<ActivityTypeService>();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
-            if(app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+            app.UseSwagger();
+            app.UseSwaggerUI();
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.UseAuthorization();
 

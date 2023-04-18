@@ -3,6 +3,8 @@ version: '3.4'
 services:
   webapi:
     image: webapi
+    environment:
+      - ASPNETCORE_URLS=http://+:80
     build:
       context: .
       dockerfile: TimeTracker/Dockerfile
