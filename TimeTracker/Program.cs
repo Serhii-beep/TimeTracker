@@ -49,6 +49,12 @@ namespace TimeTracker
 
             var app = builder.Build();
 
+            using(var serviceScope = app.Services.CreateScope())
+            {
+                var _context = serviceScope.ServiceProvider.GetRequiredService<TimeTrackerDbContext>();
+                DbInitializer.SeedData(_context);
+            }
+
             app.UseSerilogRequestLogging(opts =>
             {
                 opts.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
