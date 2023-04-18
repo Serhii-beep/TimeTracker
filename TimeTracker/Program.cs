@@ -1,6 +1,8 @@
 
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
+using Serilog.Events;
 using TimeTracker.Automapper;
 using TimeTracker.Data;
 using TimeTracker.Data.EFRepositories;
@@ -13,7 +15,15 @@ namespace TimeTracker
     {
         public static void Main(string[] args)
         {
+            Log.Logger = new LoggerConfiguration().MinimumLevel.Debug()
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .CreateLogger();
+
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Host.UseSerilog();
 
             // Add services to the container.
 
@@ -38,6 +48,18 @@ namespace TimeTracker
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
+
+            app.UseSerilogRequestLogging(opts =>
+            {
+                opts.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+                {
+                    var routeData = httpContext.GetRouteData();
+                    var controller = routeData.Values["controller"];
+                    var action = routeData.Values["action"];
+                    diagnosticContext.Set("Controller", controller);
+                    diagnosticContext.Set("Action", action);
+                };
+            });
 
             app.UseSwagger();
             app.UseSwaggerUI();
