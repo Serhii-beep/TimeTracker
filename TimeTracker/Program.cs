@@ -1,6 +1,8 @@
 
 using Microsoft.EntityFrameworkCore;
 using TimeTracker.Data;
+using TimeTracker.Data.EFRepositories;
+using TimeTracker.Data.Interfaces;
 
 namespace TimeTracker
 {
@@ -16,6 +18,7 @@ namespace TimeTracker
             builder.Services.AddDbContext<TimeTrackerDbContext>(options => options.UseSqlServer(connectionString));
 
             builder.Services.AddControllers();
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
