@@ -29,6 +29,10 @@ namespace TimeTracker
                 return new(config);
             });
             builder.Services.AddScoped<ActivityTypeService>();
+            builder.Services.AddScoped<ActivityService>();
+            builder.Services.AddScoped<EmployeeService>();
+            builder.Services.AddScoped<ProjectService>();
+            builder.Services.AddScoped<RoleService>();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();

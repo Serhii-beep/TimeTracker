@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
+using Microsoft.VisualBasic;
+using System.Text;
 using TimeTracker.Data.Entities;
 using TimeTracker.Data.Interfaces;
 using TimeTracker.Services.Dtos;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TimeTracker.Services
 {
@@ -120,6 +123,70 @@ namespace TimeTracker.Services
                 return (false, $"Role with id = {activity.RoleId} does not exist");
 
             return (true, string.Empty);
+        }
+
+        public async Task<ResponseModel<string>> GetTimetrackingByDate(int employeeId, DateTime date)
+        {
+            var employee = await _unitOfWork.EmployeeRepository.GetByIdAsync(employeeId);
+            if(employee == null)
+            {
+                return ResponseModel<string>.Failure(StatusCodes.Status400BadRequest, $"Employee with id = {employeeId} does not exist");
+            }
+            string report = await MakeReport(employee, date, date);
+            return ResponseModel<string>.Success(report);
+        }
+
+        public async Task<ResponseModel<string>> GetTimetrackingByWeek(int employeeId, int year, int week)
+        {
+            if(year < 0 || year > DateTime.Now.Year)
+            {
+                return ResponseModel<string>.Failure(StatusCodes.Status400BadRequest, "Invalid year");
+            }
+            if(week < 1 || week > 52)
+            {
+                return ResponseModel<string>.Failure(StatusCodes.Status400BadRequest, "Week must be between 1 and 52");
+            }
+            var employee = await _unitOfWork.EmployeeRepository.GetByIdAsync(employeeId);
+            if(employee == null)
+            {
+                return ResponseModel<string>.Failure(StatusCodes.Status400BadRequest, $"Employee with id = {employeeId} does not exist");
+            }
+            DateTime firstDayOfYear = new(year, 1, 1);
+            DateTime firstDayOfWeek = firstDayOfYear.AddDays((week - 1) * 7);
+            DateTime lastDayOfWeek = firstDayOfWeek.AddDays(6);
+            string report = await MakeReport(employee, firstDayOfWeek, lastDayOfWeek);
+            return ResponseModel<string>.Success(report);
+        }
+
+        private async Task<string> MakeReport(Employee employee, DateTime from, DateTime to)
+        {
+            StringBuilder report = new StringBuilder();
+            var allProjects = await _unitOfWork.ProjectRepository.GetAllAsync();
+            List<Project> filteredProjects;
+            if(from == to)
+            {
+                filteredProjects = allProjects.Where(p => p.StartDate <= from && p.EndDate >= from).ToList();
+            }
+            else
+            {
+                filteredProjects = allProjects.Where(p => p.StartDate >= from && p.EndDate <= to).ToList();
+            }
+            if(filteredProjects.Count == 0)
+            {
+                return $"{employee.Name} did not work this date";
+            }
+            var activities = await _unitOfWork.ActivityRepository.GetAllAsync();
+            foreach(var project in filteredProjects)
+            {
+                var activity = activities.FirstOrDefault(a => a.EmployeeId == employee.Id && a.ProjectId == project.Id);
+                if(activity == null)
+                    continue;
+
+                var role = await _unitOfWork.RoleRepository.GetByIdAsync(activity.RoleId);
+                var activityType = await _unitOfWork.ActivityTypeRepository.GetByIdAsync(activity.ActivityTypeId);
+                report.AppendLine($"{employee.Name} worked on project {project.Name} {activityType.Name} as a {role.Name} from {project.StartDate} to {project.EndDate}");
+            }
+            return report.ToString();
         }
     }
 }
