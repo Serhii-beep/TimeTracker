@@ -1,4 +1,7 @@
 
+using Microsoft.EntityFrameworkCore;
+using TimeTracker.Data;
+
 namespace TimeTracker
 {
     public class Program
@@ -8,6 +11,9 @@ namespace TimeTracker
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            builder.Services.AddDbContext<TimeTrackerDbContext>(options => options.UseSqlServer(connectionString));
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
