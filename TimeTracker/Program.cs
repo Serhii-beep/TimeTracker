@@ -28,7 +28,8 @@ namespace TimeTracker
             // Add services to the container.
 
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-            builder.Services.AddDbContext<TimeTrackerDbContext>(options => options.UseSqlServer(connectionString));
+            builder.Services.AddDbContext<TimeTrackerDbContext>(options => options.UseSqlServer(connectionString)
+                .LogTo(Log.Information, new[] { DbLoggerCategory.Database.Command.Name }, LogLevel.Information));
 
             builder.Services.AddControllers();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
