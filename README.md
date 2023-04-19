@@ -8,4 +8,4 @@ To run this project use the following commands:
 6. ``` dotnet ef database update ```
 <br>
 After this you cant go to http://localhost:8080/swagger/index.html
-To view logs use ``` docker-compose logs ```
+To view logs use docker-compose logs
